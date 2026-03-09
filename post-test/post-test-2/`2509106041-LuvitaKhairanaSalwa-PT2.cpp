@@ -4,29 +4,36 @@
 #include <cstdlib>
 using namespace std;
 
-struct User{
-    string nama;
-    string password;
-};
 
-struct Keuangan{
+//nested crud
+struct Keuangan{ 
     int id;
     string transaksi;
     string jenis;
     int jumlah;
 };
 
+struct User{
+    string nama;
+    string password;
+
+    Keuangan data[100]; 
+    int jumlahData;
+};
+
 int main(){
 
     User users[10];
     int jumlahUser = 1;
-
-    users[0].nama = "Vita";
+// login tanpa regist
+    users[0].nama = "Vita"; 
     users[0].password = "041";
+    users[0].jumlahData = 0;
 
     int menuAwal;
     string username, password;
     bool loginBerhasil = false;
+    int userLogin = -1;
 
     cout << "=================================================\n";
     cout << "           SISTEM MANAJEMEN KEUANGAN\n";
@@ -53,6 +60,8 @@ int main(){
         cout << " Password : ";
         cin >> users[jumlahUser].password;
 
+        users[jumlahUser].jumlahData = 0;
+
         jumlahUser++;
 
         cout << "Register berhasil! Silakan login.\n";
@@ -73,6 +82,7 @@ int main(){
         for(int i = 0; i < jumlahUser; i++){
             if(username == users[i].nama && password == users[i].password){
                 loginBerhasil = true;
+                userLogin = i;
                 break;
             }
         }
@@ -91,8 +101,6 @@ int main(){
         return 0;
     }
 
-    Keuangan data[100];
-    int jumlahData = 0;
     int pilih;
 
     do{
@@ -121,19 +129,21 @@ int main(){
 
             cout << "\n=============== TAMBAH DATA =====================\n";
 
+            int i = users[userLogin].jumlahData;
+
             cout << " ID            : ";
-            cin >> data[jumlahData].id;
+            cin >> users[userLogin].data[i].id;
 
             cout << " Nama Transaksi: ";
-            cin >> data[jumlahData].transaksi;
+            cin >> users[userLogin].data[i].transaksi;
 
             cout << " Jenis (masuk/keluar): ";
-            cin >> data[jumlahData].jenis;
+            cin >> users[userLogin].data[i].jenis;
 
             cout << " Jumlah        : ";
-            cin >> data[jumlahData].jumlah;
+            cin >> users[userLogin].data[i].jumlah;
 
-            jumlahData++;
+            users[userLogin].jumlahData++;
 
             cout << "Data berhasil ditambahkan!\n";
         }
@@ -144,6 +154,8 @@ int main(){
 
             int totalMasuk = 0;
             int totalKeluar = 0;
+
+            int jumlahData = users[userLogin].jumlahData;
 
             if(jumlahData == 0){
                 cout << "Belum ada data.\n";
@@ -159,16 +171,16 @@ int main(){
 
                 for(int i = 0; i < jumlahData; i++){
 
-                    cout << left << setw(10) << data[i].id
-                         << setw(20) << data[i].transaksi
-                         << setw(15) << data[i].jenis
-                         << setw(10) << data[i].jumlah << endl;
+                    cout << left << setw(10) << users[userLogin].data[i].id
+                         << setw(20) << users[userLogin].data[i].transaksi
+                         << setw(15) << users[userLogin].data[i].jenis
+                         << setw(10) << users[userLogin].data[i].jumlah << endl;
 
-                    if(data[i].jenis == "masuk"){
-                        totalMasuk += data[i].jumlah;
+                    if(users[userLogin].data[i].jenis == "masuk"){
+                        totalMasuk += users[userLogin].data[i].jumlah; 
                     }
-                    else if(data[i].jenis == "keluar"){
-                        totalKeluar += data[i].jumlah;
+                    else if(users[userLogin].data[i].jenis == "keluar"){
+                        totalKeluar += users[userLogin].data[i].jumlah;
                     }
                 }
 
@@ -189,18 +201,18 @@ int main(){
             cout << "Masukkan ID yang ingin diubah : ";
             cin >> cari;
 
-            for(int i = 0; i < jumlahData; i++){
+            for(int i = 0; i < users[userLogin].jumlahData; i++){
 
-                if(data[i].id == cari){
+                if(users[userLogin].data[i].id == cari){
 
                     cout << "Transaksi baru : ";
-                    cin >> data[i].transaksi;
+                    cin >> users[userLogin].data[i].transaksi;
 
                     cout << "Jenis baru     : ";
-                    cin >> data[i].jenis;
+                    cin >> users[userLogin].data[i].jenis;
 
                     cout << "Jumlah baru    : ";
-                    cin >> data[i].jumlah;
+                    cin >> users[userLogin].data[i].jumlah;
 
                     cout << "Data berhasil diupdate!\n";
 
@@ -222,15 +234,15 @@ int main(){
             cout << "Masukkan ID yang ingin dihapus : ";
             cin >> cari;
 
-            for(int i = 0; i < jumlahData; i++){
+            for(int i = 0; i < users[userLogin].jumlahData; i++){
 
-                if(data[i].id == cari){
+                if(users[userLogin].data[i].id == cari){
 
-                    for(int j = i; j < jumlahData - 1; j++){
-                        data[j] = data[j+1];
+                    for(int j = i; j < users[userLogin].jumlahData - 1; j++){
+                        users[userLogin].data[j] = users[userLogin].data[j+1];
                     }
 
-                    jumlahData--;
+                    users[userLogin].jumlahData--;
 
                     cout << "Data berhasil dihapus!\n";
 
@@ -245,7 +257,7 @@ int main(){
         }
 
         cout << "\nTekan enter untuk lanjut...";
-        cin.ignore();
+        cin.ignore(); // menghilangkan buffer
         cin.get();
 
     }while(pilih != 5);
