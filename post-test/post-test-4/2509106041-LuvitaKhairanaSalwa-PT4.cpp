@@ -56,7 +56,9 @@ void inputTransaksi(User *u){
     u->data[i].id=i+1;
 
     cout<<"ID Transaksi     : "<<u->data[i].id<<endl;
+
     cout<<"Nama Transaksi   : ";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // FIX
     getline(cin,u->data[i].transaksi);
 
     cout<<"Jenis (masuk/keluar) : ";
