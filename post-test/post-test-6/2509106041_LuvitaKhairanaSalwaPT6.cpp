@@ -2,6 +2,8 @@
 #include <iomanip>
 #include <string>
 #include <limits>
+#include <cmath>
+
 using namespace std;
 
 struct Keuangan{
@@ -63,6 +65,26 @@ void sortIdAsc(Keuangan data[], int n){
         }
         data[j+1] = key;
     }
+}
+
+int jumpSearchID(Keuangan data[], int n, int cari){
+
+    int step = sqrt(n);
+    int prev = 0;
+
+    while(data[min(step,n)-1].id < cari){
+        prev = step;
+        step += sqrt(n);
+        if(prev >= n)
+            return -1;
+    }
+
+    for(int i=prev; i<min(step,n); i++){
+        if(data[i].id == cari)
+            return i;
+    }
+
+    return -1;
 }
 
 // REKURSIF
@@ -237,33 +259,64 @@ void hapusTransaksi(User *u){
 // CARI
 void cariData(User *u){
 
-    int cari;
+    int pilih;
     bool ketemu=false;
 
     garis();
     cout<<"          PENCARIAN TRANSAKSI\n";
     garis();
 
-    cout<<"Masukkan ID transaksi : ";
-    cin>>cari;
+    cout<<"1. Cari ID (Jump Search)\n";
+    cout<<"2. Cari Nama Transaksi (Linear)\n";
+    cout<<"Pilih : ";
+    cin>>pilih;
     cin.ignore(numeric_limits<streamsize>::max(),'\n');
 
-    for(int i=0;i<u->jumlahData;i++){
-        if(u->data[i].id==cari){
+    
+    if(pilih==1){
+        int cari;
+        cout<<"Masukkan ID transaksi : ";
+        cin>>cari;
+        cin.ignore(numeric_limits<streamsize>::max(),'\n');
 
+        sortIdAsc(u->data, u->jumlahData); // wajib
+
+        int index = jumpSearchID(u->data, u->jumlahData, cari);
+
+        if(index != -1){
             cout<<"\n>>> Data ditemukan <<<\n";
-            cout<<"ID        : "<<u->data[i].id<<endl;
-            cout<<"Transaksi : "<<u->data[i].transaksi<<endl;
-            cout<<"Jenis     : "<<u->data[i].jenis<<endl;
-            cout<<"Jumlah    : "<<u->data[i].jumlah<<endl;
-
-            ketemu=true;
-            break;
+            cout<<"ID        : "<<u->data[index].id<<endl;
+            cout<<"Transaksi : "<<u->data[index].transaksi<<endl;
+            cout<<"Jenis     : "<<u->data[index].jenis<<endl;
+            cout<<"Jumlah    : "<<u->data[index].jumlah<<endl;
+        }else{
+            cout<<"Data tidak ditemukan\n";
         }
     }
 
-    if(!ketemu)
+    
+    else if(pilih==2){
+        string cari;
+        cout<<"Masukkan nama transaksi : ";
+        getline(cin,cari);
+
+        for(int i=0;i<u->jumlahData;i++){
+            if(u->data[i].transaksi == cari){
+
+                cout<<"\n>>> Data ditemukan <<<\n";
+                cout<<"ID        : "<<u->data[i].id<<endl;
+                cout<<"Transaksi : "<<u->data[i].transaksi<<endl;
+                cout<<"Jenis     : "<<u->data[i].jenis<<endl;
+                cout<<"Jumlah    : "<<u->data[i].jumlah<<endl;
+
+                ketemu=true;
+            }
+        }
+    }
+
+    if(!ketemu){
         cout<<"Data tidak ditemukan\n";
+    }
 }
 
 // MENU
@@ -384,21 +437,5 @@ int main(){
     cout<<"\nPROGRAM SELESAI DIGUNAKAN\n";
 }
 
-// PENJELASAN PROGRAM TUGAS BARU 
-// menggunakan metode sorting huruf secara ascending.
-// metode sorting angka secara descending.
-// dan untuk satu metode sorting lainnya dibebaskan
 
-// SORTING disini yamg saya pake itu ada bubble sort, selection dan insertion sorting 
-//    - Bubble Sort → transaksi (A-Z)
-//    - Selection Sort → jumlah (terbesar)
-// Mencari nilai terbesar dalam data
-// - Menempatkannya di posisi depan
-// - Diulang sampai semua data terurut
-// - Digunakan untuk mengurutkan jumlah uang dari terbesar ke terkecil
-
-//    - Insertion Sort → ID (kecil)
-// -Mengambil satu data lalu menyisipkannya ke posisi yang benar
-// - Cocok untuk data kecil
-// - Digunakan untuk mengurutkan ID dari kecil ke besar
 
