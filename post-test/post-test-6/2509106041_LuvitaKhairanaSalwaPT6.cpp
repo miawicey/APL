@@ -6,46 +6,44 @@
 
 using namespace std;
 
-struct Keuangan{
+struct Keuangan {
     int id;
     string transaksi;
     string jenis;
     int jumlah;
 };
 
-struct User{
+struct User {
     string nama;
     string password;
     Keuangan data[100];
     int jumlahData;
 };
 
-void garis(){
-    cout<<"=================================================\n";
+void garis() {
+    cout << "=================================================\n";
 }
 
-void garisKecil(){
-    cout<<"-----------------------------------------------\n";
+void garisKecil() {
+    cout << "-----------------------------------------------\n";
 }
 
 // SORTING 
-// 1. BUBBLE SORT 
-void sortTransaksiAsc(Keuangan data[], int n){
-    for(int i=0;i<n-1;i++){
-        for(int j=0;j<n-i-1;j++){
-            if(data[j].transaksi > data[j+1].transaksi){
-                swap(data[j], data[j+1]);
+void sortTransaksiAsc(Keuangan data[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (data[j].transaksi > data[j + 1].transaksi) {
+                swap(data[j], data[j + 1]);
             }
         }
     }
 }
 
-// 2. SELECTION SORT 
-void sortJumlahDesc(Keuangan data[], int n){
-    for(int i=0;i<n-1;i++){
+void sortJumlahDesc(Keuangan data[], int n) {
+    for (int i = 0; i < n - 1; i++) {
         int maxIndex = i;
-        for(int j=i+1;j<n;j++){
-            if(data[j].jumlah > data[maxIndex].jumlah){
+        for (int j = i + 1; j < n; j++) {
+            if (data[j].jumlah > data[maxIndex].jumlah) {
                 maxIndex = j;
             }
         }
@@ -53,389 +51,374 @@ void sortJumlahDesc(Keuangan data[], int n){
     }
 }
 
-// 3. INSERTION SORT 
-void sortIdAsc(Keuangan data[], int n){
-    for(int i=1;i<n;i++){
+void sortIdAsc(Keuangan data[], int n) {
+    for (int i = 1; i < n; i++) {
         Keuangan key = data[i];
         int j = i - 1;
-
-        while(j >= 0 && data[j].id > key.id){
-            data[j+1] = data[j];
+        while (j >= 0 && data[j].id > key.id) {
+            data[j + 1] = data[j];
             j--;
         }
-        data[j+1] = key;
+        data[j + 1] = key;
     }
 }
 
-int jumpSearchID(Keuangan data[], int n, int cari){
-
+// JUMP SEARCH
+int jumpSearchID(Keuangan data[], int n, int cari) {
+    if (n == 0) return -1;
     int step = sqrt(n);
     int prev = 0;
 
-    while(data[min(step,n)-1].id < cari){
+    while (data[min(step, n) - 1].id < cari) {
         prev = step;
         step += sqrt(n);
-        if(prev >= n)
-            return -1;
+        if (prev >= n) return -1;
     }
 
-    for(int i=prev; i<min(step,n); i++){
-        if(data[i].id == cari)
-            return i;
+    for (int i = prev; i < min(step, n); i++) {
+        if (data[i].id == cari) return i;
     }
-
     return -1;
 }
 
 // REKURSIF
-int hitungTotalMasuk(Keuangan *data, int n){
-    if(n==0) return 0;
-    if((data+n-1)->jenis=="masuk")
-        return (data+n-1)->jumlah + hitungTotalMasuk(data,n-1);
-    return hitungTotalMasuk(data,n-1);
+int hitungTotalMasuk(Keuangan *data, int n) {
+    if (n == 0) return 0;
+    if ((data + n - 1)->jenis == "masuk")
+        return (data + n - 1)->jumlah + hitungTotalMasuk(data, n - 1);
+    return hitungTotalMasuk(data, n - 1);
 }
 
 // OVERLOADING
-int hitungSaldo(int masuk,int keluar){
-    return masuk-keluar;
+int hitungSaldo(int masuk, int keluar) {
+    return masuk - keluar;
 }
 
 // INPUT
-void inputTransaksi(User *u){
-
-    if(u->jumlahData>=100){
-        cout<<"Data sudah mencapai batas maksimum!\n";
+void inputTransaksi(User *u) {
+    if (u->jumlahData >= 100) {
+        cout << "Data sudah mencapai batas maksimum!\n";
         return;
     }
 
-    int i=u->jumlahData;
-
+    int i = u->jumlahData;
     garis();
-    cout<<"        INPUT DATA TRANSAKSI\n";
+    cout << "        INPUT DATA TRANSAKSI\n";
     garis();
 
-    u->data[i].id=i+1;
+    u->data[i].id = i + 1;
+    cout << "ID Transaksi     : " << u->data[i].id << endl;
+    cout << "Nama Transaksi   : ";
+    // Menghapus sisa karakter di buffer agar getline tidak terlewati
+    // cin.ignore() hanya dipanggil jika ada input sebelumnya
+    getline(cin, u->data[i].transaksi);
 
-    cout<<"ID Transaksi     : "<<u->data[i].id<<endl;
+    cout << "Jenis (masuk/keluar) : ";
+    getline(cin, u->data[i].jenis);
 
-    cout<<"Nama Transaksi   : ";
+    cout << "Jumlah           : ";
+    // Error handling untuk input angka
+    while (!(cin >> u->data[i].jumlah)) {
+        cout << "Input tidak valid! Masukkan angka untuk jumlah: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    getline(cin,u->data[i].transaksi);
-
-    cout<<"Jenis (masuk/keluar) : ";
-    getline(cin,u->data[i].jenis);
-
-    cout<<"Jumlah           : ";
-    cin>>u->data[i].jumlah;
-    cin.ignore(numeric_limits<streamsize>::max(),'\n');
 
     u->jumlahData++;
-
-    cout<<"\n>>> Data berhasil ditambahkan <<<\n";
+    cout << "\n>>> Data berhasil ditambahkan <<<\n";
 }
 
-// ================= LIHAT + SORTING =================
-void lihatLaporan(User *u){
+// LAPORAN
+void lihatLaporan(User *u) {
+    if (u->jumlahData == 0) {
+        cout << "\nBelum ada data transaksi.\n";
+        return;
+    }
 
     Keuangan temp[100];
-    int totalKeluar=0;
-
-    // SORT TRANSAKSI A-Z
-    for(int i=0;i<u->jumlahData;i++) temp[i]=u->data[i];
-    sortTransaksiAsc(temp, u->jumlahData);
-
+    int pilihanSort;
+    
     garis();
-    cout<<"   LAPORAN (SORT TRANSAKSI A-Z)\n";
+    cout << "         PILIH URUTAN LAPORAN\n";
     garis();
+    cout << "1. Berdasarkan Nama Transaksi (A-Z)\n";
+    cout << "2. Berdasarkan Jumlah (Terbesar)\n";
+    cout << "3. Berdasarkan ID (Terkecil)\n";
+    cout << "Pilih tampilan: ";
+    
+    if (!(cin >> pilihanSort)) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        pilihanSort = 3; 
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    for(int i=0;i<u->jumlahData;i++){
-        cout<<temp[i].id<<" | "
-            <<temp[i].transaksi<<" | "
-            <<temp[i].jenis<<" | "
-            <<temp[i].jumlah<<endl;
+    for (int i = 0; i < u->jumlahData; i++) temp[i] = u->data[i];
+
+    if (pilihanSort == 1) sortTransaksiAsc(temp, u->jumlahData);
+    else if (pilihanSort == 2) sortJumlahDesc(temp, u->jumlahData);
+    else sortIdAsc(temp, u->jumlahData);
+
+    cout << "\n";
+    garis();
+    cout << "              LAPORAN KEUANGAN\n";
+    garis();
+    for (int i = 0; i < u->jumlahData; i++) {
+        cout << temp[i].id << " | "
+             << temp[i].transaksi << " | "
+             << temp[i].jenis << " | "
+             << temp[i].jumlah << endl;
     }
 
-    // SORT JUMLAH DESC
-    for(int i=0;i<u->jumlahData;i++) temp[i]=u->data[i];
-    sortJumlahDesc(temp, u->jumlahData);
-
-    garis();
-    cout<<"   LAPORAN (SORT JUMLAH TERBESAR)\n";
-    garis();
-
-    for(int i=0;i<u->jumlahData;i++){
-        cout<<temp[i].id<<" | "
-            <<temp[i].transaksi<<" | "
-            <<temp[i].jenis<<" | "
-            <<temp[i].jumlah<<endl;
+    int totalKeluar = 0;
+    for (int i = 0; i < u->jumlahData; i++) {
+        if (u->data[i].jenis == "keluar")
+            totalKeluar += u->data[i].jumlah;
     }
 
-    // SORT ID ASC
-    for(int i=0;i<u->jumlahData;i++) temp[i]=u->data[i];
-    sortIdAsc(temp, u->jumlahData);
+    int totalMasuk = hitungTotalMasuk(u->data, u->jumlahData);
+    int saldo = hitungSaldo(totalMasuk, totalKeluar);
 
     garis();
-    cout<<"   LAPORAN (SORT ID TERKECIL)\n";
-    garis();
-
-    for(int i=0;i<u->jumlahData;i++){
-        cout<<temp[i].id<<" | "
-            <<temp[i].transaksi<<" | "
-            <<temp[i].jenis<<" | "
-            <<temp[i].jumlah<<endl;
-    }
-
-    // TOTAL
-    for(int i=0;i<u->jumlahData;i++){
-        if(u->data[i].jenis=="keluar")
-            totalKeluar+=u->data[i].jumlah;
-    }
-
-    int totalMasuk=hitungTotalMasuk(u->data,u->jumlahData);
-    int saldo=hitungSaldo(totalMasuk,totalKeluar);
-
-    garis();
-    cout<<"Total Pemasukan   : "<<totalMasuk<<endl;
-    cout<<"Total Pengeluaran : "<<totalKeluar<<endl;
-    cout<<"Saldo Perusahaan  : "<<saldo<<endl;
+    cout << "Total Pemasukan   : " << totalMasuk << endl;
+    cout << "Total Pengeluaran : " << totalKeluar << endl;
+    cout << "Saldo Perusahaan  : " << saldo << endl;
     garis();
 }
 
 // UPDATE
-void updateTransaksi(User *u){
-
+void updateTransaksi(User *u) {
     int cari;
+    cout << "\nMasukkan ID yang diupdate : ";
+    if (!(cin >> cari)) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Input ID harus berupa angka.\n";
+        return;
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    cout<<"\nMasukkan ID yang diupdate : ";
-    cin>>cari;
-    cin.ignore(numeric_limits<streamsize>::max(),'\n');
-
-    for(int i=0;i<u->jumlahData;i++){
-        if(u->data[i].id==cari){
-
-            cout<<"Transaksi baru : ";
-            getline(cin,u->data[i].transaksi);
-
-            cout<<"Jenis baru : ";
-            getline(cin,u->data[i].jenis);
-
-            cout<<"Jumlah baru : ";
-            cin>>u->data[i].jumlah;
-            cin.ignore(numeric_limits<streamsize>::max(),'\n');
-
-            cout<<">>> Data berhasil diupdate <<<\n";
+    for (int i = 0; i < u->jumlahData; i++) {
+        if (u->data[i].id == cari) {
+            cout << "Transaksi baru : ";
+            getline(cin, u->data[i].transaksi);
+            cout << "Jenis baru : ";
+            getline(cin, u->data[i].jenis);
+            cout << "Jumlah baru : ";
+            while (!(cin >> u->data[i].jumlah)) {
+                cout << "Input tidak valid! Masukkan angka: ";
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << ">>> Data berhasil diupdate <<<\n";
             return;
         }
     }
-
-    cout<<"Data tidak ditemukan\n";
+    cout << "Data tidak ditemukan\n";
 }
 
 // HAPUS
-void hapusTransaksi(User *u){
-
+void hapusTransaksi(User *u) {
     int cari;
+    cout << "\nMasukkan ID yang dihapus : ";
+    if (!(cin >> cari)) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Input ID harus berupa angka.\n";
+        return;
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    cout<<"\nMasukkan ID yang dihapus : ";
-    cin>>cari;
-    cin.ignore(numeric_limits<streamsize>::max(),'\n');
-
-    for(int i=0;i<u->jumlahData;i++){
-        if(u->data[i].id==cari){
-
-            for(int j=i;j<u->jumlahData-1;j++)
-                u->data[j]=u->data[j+1];
-
+    for (int i = 0; i < u->jumlahData; i++) {
+        if (u->data[i].id == cari) {
+            for (int j = i; j < u->jumlahData - 1; j++)
+                u->data[j] = u->data[j + 1];
             u->jumlahData--;
-
-            cout<<">>> Data berhasil dihapus <<<\n";
+            cout << ">>> Data berhasil dihapus <<<\n";
             return;
         }
     }
-
-    cout<<"Data tidak ditemukan\n";
+    cout << "Data tidak ditemukan\n";
 }
 
 // CARI
-void cariData(User *u){
-
+void cariData(User *u) {
     int pilih;
-    bool ketemu=false;
+    bool ketemu = false;
 
     garis();
-    cout<<"          PENCARIAN TRANSAKSI\n";
+    cout << "          PENCARIAN TRANSAKSI\n";
     garis();
-
-    cout<<"1. Cari ID (Jump Search)\n";
-    cout<<"2. Cari Nama Transaksi (Linear)\n";
-    cout<<"Pilih : ";
-    cin>>pilih;
-    cin.ignore(numeric_limits<streamsize>::max(),'\n');
-
+    cout << "1. Cari ID \n";
+    cout << "2. Cari Nama Transaksi \n";
+    cout << "Pilih : ";
     
-    if(pilih==1){
+    if (!(cin >> pilih)) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Pilihan tidak valid!\n";
+        return;
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    if (pilih == 1) {
         int cari;
-        cout<<"Masukkan ID transaksi : ";
-        cin>>cari;
-        cin.ignore(numeric_limits<streamsize>::max(),'\n');
+        cout << "Masukkan ID transaksi : ";
+        if (!(cin >> cari)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Input ID harus angka!\n";
+            return;
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        sortIdAsc(u->data, u->jumlahData); // wajib
-
+        sortIdAsc(u->data, u->jumlahData); 
         int index = jumpSearchID(u->data, u->jumlahData, cari);
 
-        if(index != -1){
-            cout<<"\n>>> Data ditemukan <<<\n";
-            cout<<"ID        : "<<u->data[index].id<<endl;
-            cout<<"Transaksi : "<<u->data[index].transaksi<<endl;
-            cout<<"Jenis     : "<<u->data[index].jenis<<endl;
-            cout<<"Jumlah    : "<<u->data[index].jumlah<<endl;
-        }else{
-            cout<<"Data tidak ditemukan\n";
+        if (index != -1) {
+            cout << "\n>>> Data ditemukan <<<\n";
+            cout << "ID        : " << u->data[index].id << endl;
+            cout << "Transaksi : " << u->data[index].transaksi << endl;
+            cout << "Jenis     : " << u->data[index].jenis << endl;
+            cout << "Jumlah    : " << u->data[index].jumlah << endl;
+            ketemu = true;
         }
     }
-
-    
-    else if(pilih==2){
+    else if (pilih == 2) {
         string cari;
-        cout<<"Masukkan nama transaksi : ";
-        getline(cin,cari);
+        cout << "Masukkan nama transaksi : ";
+        getline(cin, cari);
 
-        for(int i=0;i<u->jumlahData;i++){
-            if(u->data[i].transaksi == cari){
-
-                cout<<"\n>>> Data ditemukan <<<\n";
-                cout<<"ID        : "<<u->data[i].id<<endl;
-                cout<<"Transaksi : "<<u->data[i].transaksi<<endl;
-                cout<<"Jenis     : "<<u->data[i].jenis<<endl;
-                cout<<"Jumlah    : "<<u->data[i].jumlah<<endl;
-
-                ketemu=true;
+        for (int i = 0; i < u->jumlahData; i++) {
+            if (u->data[i].transaksi == cari) {
+                cout << "\n>>> Data ditemukan <<<\n";
+                cout << "ID        : " << u->data[i].id << endl;
+                cout << "Transaksi : " << u->data[i].transaksi << endl;
+                cout << "Jenis     : " << u->data[i].jenis << endl;
+                cout << "Jumlah    : " << u->data[i].jumlah << endl;
+                ketemu = true;
             }
         }
     }
 
-    if(!ketemu){
-        cout<<"Data tidak ditemukan\n";
+    if (!ketemu) {
+        cout << "Data tidak ditemukan\n";
     }
 }
 
 // MENU
-void menuUtama(User *user){
-
+void menuUtama(User *user) {
     int pilih;
-
-    do{
+    do {
         garis();
-        cout<<"      MENU UTAMA - SISTEM KEUANGAN\n";
+        cout << "      MENU UTAMA - SISTEM KEUANGAN\n";
         garis();
-        cout<<"User : "<<user->nama<<endl;
+        cout << "User : " << user->nama << endl;
         garisKecil();
-
-        cout<<"1. Input Data Transaksi\n";
-        cout<<"2. Lihat Laporan Keuangan\n";
-        cout<<"3. Update Transaksi\n";
-        cout<<"4. Hapus Transaksi\n";
-        cout<<"5. Cari Transaksi\n";
-        cout<<"6. Keluar\n";
-
+        cout << "1. Input Data Transaksi\n";
+        cout << "2. Lihat Laporan Keuangan\n";
+        cout << "3. Update Transaksi\n";
+        cout << "4. Hapus Transaksi\n";
+        cout << "5. Cari Transaksi\n";
+        cout << "6. Keluar\n";
         garisKecil();
-        cout<<"Pilih Menu : ";
-        cin>>pilih;
-        cin.ignore(numeric_limits<streamsize>::max(),'\n');
+        cout << "Pilih Menu : ";
+        
+        if (!(cin >> pilih)) {
+            cout << "\n[!] Error: Masukkan angka (1-6)!\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue; 
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        if(pilih==1) inputTransaksi(user);
-        else if(pilih==2) lihatLaporan(user);
-        else if(pilih==3) updateTransaksi(user);
-        else if(pilih==4) hapusTransaksi(user);
-        else if(pilih==5) cariData(user);
+        if (pilih == 1) inputTransaksi(user);
+        else if (pilih == 2) lihatLaporan(user);
+        else if (pilih == 3) updateTransaksi(user);
+        else if (pilih == 4) hapusTransaksi(user);
+        else if (pilih == 5) cariData(user);
 
-    }while(pilih!=6);
+    } while (pilih != 6);
 }
 
 // MAIN
-int main(){
-
+int main() {
     User users[10];
-    int jumlahUser=1;
+    int jumlahUser = 1;
 
-    users[0].nama="Vita";
-    users[0].password="041";
-    users[0].jumlahData=0;
+    users[0].nama = "Vita";
+    users[0].password = "041";
+    users[0].jumlahData = 0;
 
-    string username,password;
-    bool loginBerhasil=false;
-    int userLogin=-1;
-
+    string username, password;
+    bool loginBerhasil = false;
+    int userLogin = -1;
     int menuAwal;
 
     garis();
-    cout<<"  SISTEM MANAJEMEN KEUANGAN PERUSAHAAN\n";
+    cout << "  SISTEM MANAJEMEN KEUANGAN PERUSAHAAN\n";
     garis();
-
-    cout<<"1. Login\n";
-    cout<<"2. Register\n";
-    cout<<"3. Keluar\n";
-
+    cout << "1. Login\n";
+    cout << "2. Register\n";
+    cout << "3. Keluar\n";
     garis();
-    cout<<"Pilih menu : ";
-    cin >> menuAwal;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    if(menuAwal==3) return 0;
-
-    if(menuAwal==2){
-        garis();
-        cout<<"        REGISTER USER\n";
-        garis();
-
-        cout<<"Username : ";
-        getline(cin, users[jumlahUser].nama);
-
-        cout<<"Password : ";
-        getline(cin, users[jumlahUser].password);
-
-        users[jumlahUser].jumlahData=0;
-        jumlahUser++;
-
-        cout<<">>> Register berhasil <<<\n";
+    cout << "Pilih menu : ";
+    
+    if (!(cin >> menuAwal)) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        menuAwal = 0;
+    } else {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
-    int percobaan=0;
+    if (menuAwal == 3) return 0;
 
-    while(percobaan<3){
+    if (menuAwal == 2) {
         garis();
-        cout<<"              LOGIN\n";
+        cout << "        REGISTER USER\n";
         garis();
+        cout << "Username : ";
+        getline(cin, users[jumlahUser].nama);
+        cout << "Password : ";
+        getline(cin, users[jumlahUser].password);
+        users[jumlahUser].jumlahData = 0;
+        jumlahUser++;
+        cout << ">>> Register berhasil <<<\n";
+    }
 
-        cout<<"Username : ";
+    int percobaan = 0;
+    while (percobaan < 3) {
+        garis();
+        cout << "              LOGIN\n";
+        garis();
+        cout << "Username : ";
         getline(cin, username);
-
-        cout<<"Password : ";
+        cout << "Password : ";
         getline(cin, password);
 
-        for(int i=0;i<jumlahUser;i++){
-            if(username==users[i].nama && password==users[i].password){
-                loginBerhasil=true;
-                userLogin=i;
+        for (int i = 0; i < jumlahUser; i++) {
+            if (username == users[i].nama && password == users[i].password) {
+                loginBerhasil = true;
+                userLogin = i;
                 break;
             }
         }
 
-        if(loginBerhasil){
-            cout<<">>> Login berhasil <<<\n";
+        if (loginBerhasil) {
+            cout << ">>> Login berhasil <<<\n";
             menuUtama(&users[userLogin]);
             break;
         }
-
-        cout<<"Login gagal\n";
+        cout << "Login gagal\n";
         percobaan++;
     }
 
-    if(!loginBerhasil)
-        cout<<"Login gagal 3 kali\n";
+    if (!loginBerhasil)
+        cout << "Login gagal 3 kali\n";
 
-    cout<<"\nPROGRAM SELESAI DIGUNAKAN\n";
+    cout << "\nPROGRAM SELESAI DIGUNAKAN\n";
+    return 0;
 }
-
-
-
